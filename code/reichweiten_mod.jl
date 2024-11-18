@@ -1,10 +1,10 @@
-using Plots, CSV, DataFrames, LsqFit, Statistics, Roots
+
 
 module Reichweiten
+using Plots, CSV, DataFrames, LsqFit, Statistics, Roots
 
 export plot_p_counts
 
-using Plots, CSV, DataFrames, LsqFit, Statistics, Roots, FilePathsBase
 
 path_to_plots = "../plots/"
 path_to_data = "../data"
@@ -105,7 +105,7 @@ function plot_p_counts(csv_name::String, init_c_param, d; time=60, init_a_param=
     display(fig)
 
     half_max_counts = m(0)
-    return p_mean_dist, half_max_counts, fit_params
+    return p_mean_dist, Delta_mean_dist, half_max_counts, fit_params, Delta_fit_params
 end
 
 
