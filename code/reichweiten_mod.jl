@@ -134,7 +134,7 @@ end
 
 
 function plot_p_over_1_d(results_from_reichweiten::Vector{Result}, D_d::Float64)
-
+    
     ### Extrahiere Ergebnisse ###
     p_means = Float64[]
     D_p_means = Float64[]
@@ -147,19 +147,62 @@ function plot_p_over_1_d(results_from_reichweiten::Vector{Result}, D_d::Float64)
         push!(D_p_means, result.D_p)
         push!(fit_params, result.fit_params[:])
         push!(D_fit_params, result.D_fit_params[:])
-        push!(ds,result.d)
+        push!(ds, result.d)
     end
 
+
+    # Fit-Funktion definieren (lineare Regression)
+    fit_model(x, p) = p[1] * x .+ p[2]
+
+    # Fit durchführen
+    initial_params = [1.0, 1.0]  # Anfangsschätzungen für die Parameter
+    fit_result = curve_fit(fit_model, 1 ./ p_means, ds, initial_params)
+    fit_params = fit_result.param  # Angepasste Parameter (Steigung, Achsenabschnitt)
+
+    # Berechne den Bereich für die Fit-Kurve (1/p_means)
+    p_fit = range(minimum(1 ./ p_means), maximum(1 ./ p_means), length=100)  # Glatter Bereich
+    fit_curve = fit_model(p_fit, fit_params)  # Berechne die Fit-Kurve mit den angepassten Parametern
+
+
+    #Unsicherheiten der Fit-Parameter
+    Delta_fit_params = standard_errors(fit_result)
+
+    ### Plot wird hier erzeugt ###
     fig = plot(
         1 ./ p_means,
         ds,
-        xerr=  D_p_means ./ p_means.^2,
-        yerr=D_d,
-        seriestype="scatter",
+        xerr = D_p_means ./ p_means.^2,  # Fehler in x
+        yerr = D_d,  # Fehler in y
+        seriestype = "scatter",
+        xlabel = "1/p in 1/mbar",
+        ylabel = "Abstand d in mm",
+        label = "1/p inverser mittlerer Druck",
+        ylims = (33, 38),  # Setze die y-Achsen-Grenzen
     )
-    
-    display(fig)
+
+    # Fit-Kurve hinzufügen
+    plot!(
+        p_fit,
+        fit_curve,
+        label = "Fit-Kurve",
+        linewidth = 2,
+        color = :red
+    )
+
+    display(fig)  # Zeige den Plot an
+
+
+    r_mean = fit_params[1] / 1013
+    D_r_mean = Delta_fit_params[1] / 1013
+
+
+    println("Die Mittlere Reichweite in Luft beträgt: R = ", r_mean, " +- ", D_r_mean)
+    println("Fit Paramter: ")
+    println("a = ", fit_params[1], " +- ", Delta_fit_params[1])
+    println("b = ", fit_params[2], " +- ", Delta_fit_params[2])
+    return r_mean, D_r_mean
 end
+
 
 
 
@@ -172,7 +215,8 @@ function plot_p_U(path_to_csv)
     plot(
         p_s,
         U,
-        seriestype="scatter"
+        seriestype="scatter",
+
     )
 end
 
