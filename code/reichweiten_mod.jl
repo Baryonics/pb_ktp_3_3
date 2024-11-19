@@ -1,10 +1,17 @@
-using Plots, CSV, DataFrames, LsqFit, Statistics, Roots
+using Plots, CSV, DataFrames, LsqFit, Statistics, Roots, Revise
 
 module Reichweiten
 
-export plot_p_counts
+export plot_p_counts, Result, plot_p_over_1_d
 
 using Plots, CSV, DataFrames, LsqFit, Statistics, Roots, FilePathsBase
+
+struct Result
+    p::Float64
+    D_p::Float64
+    fit_params::Vector{Float64}
+    D_fit_params::Vector{Float64}
+end
 
 path_to_plots = "../plots/"
 path_to_data = "../data"
@@ -57,8 +64,8 @@ function plot_p_counts(csv_name::String, init_c_param, d; time=60, init_a_param=
     # Fehler bestimmen
     Delta_counts_per_second = sqrt.(counts) ./ time
     Delta_p_s = data[:,2]
-    Delta_mean_dist = 0.5 * Delta_counts_per_second
-    @show Delta_fit_params = standard_errors(fit_result)
+    Delta_p_mean_dist = 0.5 * Delta_counts_per_second[1]
+    Delta_fit_params = standard_errors(fit_result)
 
     
     ### Plot wird hier Erzeugt ###
@@ -105,9 +112,32 @@ function plot_p_counts(csv_name::String, init_c_param, d; time=60, init_a_param=
     display(fig)
 
     half_max_counts = m(0)
-    return p_mean_dist, half_max_counts, fit_params
+
+    result = Result(p_mean_dist, Delta_p_mean_dist, fit_params, Delta_fit_params)
+
+    return result
 end
 
+
+
+
+function plot_p_over_1_d(results_from_reichweiten::Vector{Result})
+    ### Extrahiere Ergebnisse ###
+    p_means = zeros(0)
+    D_p_means = zeros(0)
+    fit_params = Vector{Vector{Float64}}[]
+    D_fit_params = Vector{Vector{Float64}}[]
+
+    for result::Result in results_from_reichweiten
+        append!(p_means, result.p)
+        append!(D_p_means, result.D_p)
+        append!(fit_params, result.fit_params)
+        append!(D_fit_params, result.D_fit_params)
+    end
+
+    @show fit_params
+    
+end
 
 
 
