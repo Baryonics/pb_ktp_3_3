@@ -2,7 +2,7 @@ using Plots, CSV, DataFrames, LsqFit, Statistics, Roots, Revise
 
 module Reichweiten
 
-export plot_p_counts, Result, plot_p_over_1_d
+export plot_p_counts, Result, plot_p_over_1_d, print_result
 
 using Plots, CSV, DataFrames, LsqFit, Statistics, Roots, FilePathsBase
 
@@ -11,6 +11,7 @@ struct Result
     D_p::Float64
     fit_params::Vector{Float64}
     D_fit_params::Vector{Float64}
+    d::Float64
 end
 
 path_to_plots = "../plots/"
@@ -30,6 +31,7 @@ path_to_data = "../data"
 - `half_max_counts`: Anzahl der halben maximalen counts
 """
 function plot_p_counts(csv_name::String, init_c_param, d; time=60, init_a_param=60.0, init_b_param=0.5)
+
     # Daten einlesen
     path_to_csv = path_to_data * "/" * csv_name
     data = CSV.read(path_to_csv, DataFrame)
@@ -64,7 +66,7 @@ function plot_p_counts(csv_name::String, init_c_param, d; time=60, init_a_param=
     # Fehler bestimmen
     Delta_counts_per_second = sqrt.(counts) ./ time
     Delta_p_s = data[:,2]
-    Delta_p_mean_dist = 0.5 * Delta_counts_per_second[1]
+    Delta_p_mean_dist = 0.5 * Delta_counts_per_second[2]
     Delta_fit_params = standard_errors(fit_result)
 
     
@@ -113,30 +115,50 @@ function plot_p_counts(csv_name::String, init_c_param, d; time=60, init_a_param=
 
     half_max_counts = m(0)
 
-    result = Result(p_mean_dist, Delta_p_mean_dist, fit_params, Delta_fit_params)
+    result = Result(p_mean_dist, Delta_p_mean_dist, fit_params, Delta_fit_params, d)
 
+    print_result(result)
     return result
 end
 
 
 
+function print_result(res::Result)
+    println("Der Mittlere Druck ist: p = ", res.p, "+- " , res.D_p)
+    println("Fit-Parameter: ")
+    println("a = ", res.fit_params[1], " +- ", res.D_fit_params[1])
+    println("b = ", res.fit_params[2], " +- ", res.D_fit_params[2])
+    println("c = ", res.fit_params[3], " +- ", res.D_fit_params[3])
+end
 
-function plot_p_over_1_d(results_from_reichweiten::Vector{Result})
+
+
+function plot_p_over_1_d(results_from_reichweiten::Vector{Result}, D_d::Float64)
+
     ### Extrahiere Ergebnisse ###
-    p_means = zeros(0)
-    D_p_means = zeros(0)
-    fit_params = Vector{Vector{Float64}}[]
-    D_fit_params = Vector{Vector{Float64}}[]
+    p_means = Float64[]
+    D_p_means = Float64[]
+    fit_params = Vector{Float64}[]
+    D_fit_params = Vector{Float64}[]
+    ds = Float64[]
 
     for result::Result in results_from_reichweiten
-        append!(p_means, result.p)
-        append!(D_p_means, result.D_p)
-        append!(fit_params, result.fit_params)
-        append!(D_fit_params, result.D_fit_params)
+        push!(p_means, result.p)
+        push!(D_p_means, result.D_p)
+        push!(fit_params, result.fit_params[:])
+        push!(D_fit_params, result.D_fit_params[:])
+        push!(ds,result.d)
     end
 
-    @show fit_params
+    fig = plot(
+        1 ./ p_means,
+        ds,
+        xerr=  D_p_means ./ p_means.^2,
+        yerr=D_d,
+        seriestype="scatter",
+    )
     
+    display(fig)
 end
 
 
