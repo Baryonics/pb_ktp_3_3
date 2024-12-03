@@ -2,7 +2,7 @@ using Plots, CSV, DataFrames, LsqFit, Statistics, Roots, Revise
 
 module Reichweiten
 
-export plot_p_counts, Result, plot_p_over_1_d, print_result
+export plot_p_counts, Result, plot_p_over_1_d, print_result, plot_p_U
 
 using Plots, CSV, DataFrames, LsqFit, Statistics, Roots, FilePathsBase
 
