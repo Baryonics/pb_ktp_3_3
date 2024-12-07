@@ -207,15 +207,37 @@ end
 
 
 
-function plot_p_U(path_to_csv)
+function plot_p_U(csv_name)
+    path_to_csv = path_to_data * "/" * csv_name
     data = CSV.read(path_to_csv, DataFrame)
-    p_s = data[:,1]
-    U = data[:,4]
+    ps = data[:,1]
+    Us = data[:,4]
+    D_ps = data[:,5]
+    D_Us = data[:,2]
+
+    # Fit-Funktion definieren (lineare Regression)
+    fit_model(x, p) = p[1] * x .+ p[2]
+
+    # Fit durchführen
+    initial_params = [(FWHMs[1] - FWHMs[end]) / (rho_xs[1] - rho_xs[end])*0.7, 1.]  # Anfangsschätzungen für die Parameter
+    fit_result = curve_fit(fit_model, rho_xs, FWHMs, initial_params)
+    fit_params = fit_result.param  # Angepasste Parameter (Steigung, Achsenabschnitt)
+
+    # Berechne den Bereich für die Fit-Kurve (1/p_means)
+    p_fit = range(minimum(rho_xs), maximum(rho_xs), length=100)  
+    fit_curve = fit_model(p_fit, fit_params)  # Berechne die Fit-Kurve mit den angepassten Parametern
+
 
     plot(
-        p_s,
-        U,
+        ps,
+        Us,
         seriestype="scatter",
+        xerror=D_ps,
+        yerror=D_Us,
+        title="Mittlere Impulshöhe aufgetragen gegen Druck",
+        xlabel="Druck in [mbar]",
+        ylabel="U in [V]",
+        label = "Messwerte"
 
     )
 end
