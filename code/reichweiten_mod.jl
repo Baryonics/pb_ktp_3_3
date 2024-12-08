@@ -178,6 +178,7 @@ function plot_p_over_1_d(results_from_reichweiten::Vector{Result}, D_d::Float64)
         ylabel = "Abstand d in mm",
         label = "1/p inverser mittlerer Druck",
         ylims = (33, 38),  # Setze die y-Achsen-Grenzen
+        title="Abstand d aufgetragen gegen den inversen Druck"
     )
 
     # Fit-Kurve hinzufügen
@@ -189,8 +190,6 @@ function plot_p_over_1_d(results_from_reichweiten::Vector{Result}, D_d::Float64)
         color = :red
     )
 
-    display(fig)  # Zeige den Plot an
-
 
     r_mean = fit_params[1] / 1013
     D_r_mean = Delta_fit_params[1] / 1013
@@ -200,6 +199,11 @@ function plot_p_over_1_d(results_from_reichweiten::Vector{Result}, D_d::Float64)
     println("Fit Paramter: ")
     println("a = ", fit_params[1], " +- ", Delta_fit_params[1])
     println("b = ", fit_params[2], " +- ", Delta_fit_params[2])
+
+    path_to_plot_file = path_to_plots * "/" * "d_1_over_p" * ".png"
+    savefig(fig,path_to_plot_file)
+
+    display(fig)
     return r_mean, D_r_mean
 end
 
