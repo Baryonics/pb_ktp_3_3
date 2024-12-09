@@ -269,5 +269,6 @@ function plot_p_U(csv_name, relevant_last_data_points)
     savefig(fig,path_to_plot_file)
 
     display(fig)
+    return (p_mean, D_p_mean)
 end
 end
