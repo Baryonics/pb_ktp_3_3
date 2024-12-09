@@ -1,4 +1,5 @@
 Druck[mbar], ΔDruck[mbar], Counts, mittl. Impulshöhe[V], Δmittl. Impulshöhe[V]
+0.95,0.1,3872,75,1
 200,10,3868,64.5,1
 400,10,3738,52,1
 600,10,3850,37,1
@@ -9,4 +10,3 @@ Druck[mbar], ΔDruck[mbar], Counts, mittl. Impulshöhe[V], Δmittl. Impulshöhe[
 880,10,154,6.5,1
 890,10,21,5.5,1
 910,10,0,3.5,0.5
-0.95,0.1,3872,75,1

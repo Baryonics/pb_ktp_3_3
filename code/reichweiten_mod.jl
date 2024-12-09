@@ -1,10 +1,10 @@
-using Plots, CSV, DataFrames, LsqFit, Statistics, Roots, Revise
-
 module Reichweiten
-
+using Plots, CSV, DataFrames, LsqFit, Statistics, Roots, FilePathsBase, Revise
+using ..EasyLinearRegression
 export plot_p_counts, Result, plot_p_over_1_d, print_result, plot_p_U
 
-using Plots, CSV, DataFrames, LsqFit, Statistics, Roots, FilePathsBase
+
+
 
 struct Result
     p::Float64
@@ -211,28 +211,32 @@ end
 
 
 
-function plot_p_U(csv_name)
+function plot_p_U(csv_name, relevant_last_data_points)
     path_to_csv = path_to_data * "/" * csv_name
     data = CSV.read(path_to_csv, DataFrame)
     ps = data[:,1]
     Us = data[:,4]
-    D_ps = data[:,5]
-    D_Us = data[:,2]
+    D_ps = data[:,2]
+    D_Us = data[:,5]
 
-    # Fit-Funktion definieren (lineare Regression)
-    fit_model(x, p) = p[1] * x .+ p[2]
+    relevant_ps = ps[end-relevant_last_data_points:end]
+    relevant_Us = Us[end-relevant_last_data_points:end]
 
-    # Fit durchführen
-    initial_params = [(FWHMs[1] - FWHMs[end]) / (rho_xs[1] - rho_xs[end])*0.7, 1.]  # Anfangsschätzungen für die Parameter
-    fit_result = curve_fit(fit_model, rho_xs, FWHMs, initial_params)
-    fit_params = fit_result.param  # Angepasste Parameter (Steigung, Achsenabschnitt)
+    #Lineare Regression
+    linreg = EasyLinearRegression.do_linreg(relevant_ps, relevant_Us)
+    a = linreg.a
+    b = linreg.b
+    D_a = linreg.D_a
+    D_b = linreg.D_b
 
-    # Berechne den Bereich für die Fit-Kurve (1/p_means)
-    p_fit = range(minimum(rho_xs), maximum(rho_xs), length=100)  
-    fit_curve = fit_model(p_fit, fit_params)  # Berechne die Fit-Kurve mit den angepassten Parametern
+    function fit_func(x)
+        return a*x+b
+    end
 
 
-    plot(
+    p_mean = find_zero(fit_func, 1000.)
+    D_p_mean = sqrt((p_mean*D_a)^2 + D_b^2)
+    fig = plot(
         ps,
         Us,
         seriestype="scatter",
@@ -240,11 +244,30 @@ function plot_p_U(csv_name)
         yerror=D_Us,
         title="Mittlere Impulshöhe aufgetragen gegen Druck",
         xlabel="Druck in [mbar]",
-        ylabel="U in [V]",
-        label = "Messwerte"
-
+        ylabel="U in [V]", 
+        label = "Messwerte",
+        xlims=(-20,1050),
+        ylims=(-5,90)
     )
+
+    plot!(
+        fit_func,
+        label="Fit-Kurve",
+        linewidth=2,
+        color=:red
+    )
+
+    println("Gefittet mit den ", relevant_last_data_points, " letzen Datenpunkten")
+    println("Fitparameter: ")
+    println("a = ", a, " +- ", D_a)
+    println("b = ", b, " +- ", D_b)
+    println("\n")
+    println("Mittlerer Druck: ")
+    println("p = ", p_mean, " +- ", D_p_mean)
+
+    path_to_plot_file = path_to_plots * "/" * csv_name * "_impuls" * ".png"
+    savefig(fig,path_to_plot_file)
+
+    display(fig)
 end
-
-
 end
