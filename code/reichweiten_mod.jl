@@ -190,6 +190,10 @@ function plot_p_over_1_d(results_from_reichweiten::Vector{Result}, D_d::Float64)
         color = :red
     )
 
+    println("Ergebnisse: ")
+    for i in 1:length(p_means)
+        println("1/p_i = ", )
+    end
 
     r_mean = fit_params[1] / 1013
     D_r_mean = Delta_fit_params[1] / 1013
@@ -204,7 +208,7 @@ function plot_p_over_1_d(results_from_reichweiten::Vector{Result}, D_d::Float64)
     savefig(fig,path_to_plot_file)
 
     display(fig)
-    return r_mean, D_r_mean
+    return r_mean, D_r_mean, fit_params[1], Delta_fit_params[1], fit_params[2], Delta_fit_params[2]
 end
 
 
