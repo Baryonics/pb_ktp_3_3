@@ -1,6 +1,1 @@
-# pb_ktp_3_3
-
-## KLAPPT ES ENDLICH?!
-
-
-## JAWOLLLLLL ENDLICH
+# Versuchsauswertung Laborpraktikum Kern und Teilchenphysik - Reichweite von alpha-Strahlen
