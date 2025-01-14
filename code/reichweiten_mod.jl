@@ -77,7 +77,7 @@ function plot_p_counts(csv_name::String, init_c_param, d; time=60, init_a_param=
         counts_per_second,
         xlabel="Druck in mbar",
         ylabel="counts pro Sekunde",
-        title="Counts pro Sekunde gegen Druck",
+        title="Counts pro Sekunde gegen Druck, d = ($d +- 0,5)mm",
         seriestype="scatter",
         label="Messwerte",
         xerror=Delta_p_s,
@@ -215,7 +215,7 @@ end
 
 
 
-function plot_p_U(csv_name, relevant_last_data_points)
+function plot_p_U(csv_name, relevant_last_data_points, d)
     path_to_csv = path_to_data * "/" * csv_name
     data = CSV.read(path_to_csv, DataFrame)
     ps = data[:,1]
@@ -246,7 +246,7 @@ function plot_p_U(csv_name, relevant_last_data_points)
         seriestype="scatter",
         xerror=D_ps,
         yerror=D_Us,
-        title="Mittlere Impulshöhe aufgetragen gegen Druck",
+        title="Mittl. Impulshöhe gegen Druck, d = ($d +- 0,5)mm",
         xlabel="Druck in [mbar]",
         ylabel="U in [V]", 
         label = "Messwerte",
