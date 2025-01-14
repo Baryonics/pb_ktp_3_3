@@ -180,7 +180,12 @@ function plot_p_over_1_d(results_from_reichweiten::Vector{Result}, D_d::Float64)
 
     println("Ergebnisse: ")
     for i in 1:length(p_means)
-        println("1/p_i = ", )
+        println("1/p_i = ", 1 / p_means[i], " +- ", D_p_means[i] / p_means[i]^2)
+    end
+
+
+    for i in 1:length(p_means)
+        println("p = ", p_means[i], " +- ", D_p_means[i])
     end
 
     r_mean = fit_params[1] / 1013
