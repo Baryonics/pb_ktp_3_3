@@ -18,18 +18,6 @@ path_to_plots = "../plots/"
 path_to_data = "../data"
 
 
-"""
-# Die Funktion plottet Druck p gegen die Anzahl der Counts. Zusätzlich plottet sie einen geeigneten Fit
-# Arguments
-- `csv_name`: Name der .csv Datei
-- `init_c_param`: Anfangsparameter für den Fit. Gibt an, an bei welchem Druck die Hälfte der maximalen Counts erreicht ist
-- `d`: Gemessener Abstand 
-- `init_a_param`: Anfangsparameter für den Fit. Maximalwert der Counts
-- `init_b_param`: Anfangsparameter für den Fit. Gibt Steiheit der Kurve an
-# return
-- `p_fit`: Der Druck an dem die maximalen Counts um die Hälfte gesunken sind
-- `half_max_counts`: Anzahl der halben maximalen counts
-"""
 function plot_p_counts(csv_name::String, init_c_param, d; time=60, init_a_param=60.0, init_b_param=0.5)
 
     # Daten einlesen
